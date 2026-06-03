@@ -1,0 +1,19 @@
+/target
+/fuzz/target/
+/fuzz/coverage/
+# Fuzz crash artifacts (keep committed regression inputs)
+/fuzz/artifacts/*
+!/fuzz/artifacts/my_target/oom-7fc036367c008997f59b0adc14d213e7423b8b29
+# libFuzzer auto-shards (keep seed_* and README in fuzz/corpus/my_target/)
+/fuzz/corpus/my_target/*
+!/fuzz/corpus/my_target/README.md
+!/fuzz/corpus/my_target/seed_*
+/mutants.out/
+/mutants.out.*/
+/lcov.info
+/.idea/
+/*.csv
+.idea/
+**/target/
+
+
