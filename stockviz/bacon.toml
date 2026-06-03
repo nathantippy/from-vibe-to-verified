@@ -1,0 +1,22 @@
+# r[impl talk.bacon]
+# Local watch / CI-adjacent dev loop (optional; see stock_viz_spec.md §6)
+[jobs.check]
+command = ["cargo", "check", "--all-targets"]
+
+[jobs.test]
+command = ["cargo", "nextest", "run"]
+
+[jobs.clippy]
+command = ["cargo", "clippy", "--all-targets", "--", "-D", "warnings"]
+
+[jobs.coverage]
+command = [
+    "cargo",
+    "llvm-cov",
+    "nextest",
+    "--color",
+    "always",      # keeps nice colored output in Bacon
+]
+need_stdout = true
+analyzer = "nextest"  # built-in support for nextest output parsing
+

@@ -1,0 +1,13 @@
+specs (
+  {
+    name stock-viz
+    include (stock_viz_spec.md docs/talk_tags_spec.md)
+    impls (
+      {
+        name rust
+        include (src/**/*.rs fuzz/fuzz_targets/*.rs)
+        exclude (target/** fuzz/target/**)
+      }
+    )
+  }
+)

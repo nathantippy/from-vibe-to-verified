@@ -1,0 +1,3 @@
+# r[impl talk.mutants] — keep GUI and CLI out of mutation noise
+# See https://mutants.rs/config-file.html (default path: .cargo/mutants.toml)
+exclude_globs = ["src/gui/**", "src/main.rs", "fuzz/**"]

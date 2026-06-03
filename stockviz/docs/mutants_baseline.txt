@@ -1,0 +1,6 @@
+# cargo-mutants summary before mutation-killing test pass (talk reference)
+# Scope: .cargo/mutants.toml (chart, data, download, talk_quiz)
+missed: 49
+caught: 98
+unviable: 5
+tested: 152

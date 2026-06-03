@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  pr-fast:
+    name: PR fast (fmt, clippy, nextest, coverage)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy, llvm-tools-preview
+
+      - name: PR fast path
+        run: ./scripts/ci_pr_fast.sh
+
+      - uses: taiki-e/install-action@cargo-llvm-cov
+      - name: llvm-cov (informational)
+        continue-on-error: true
+        run: ./scripts/coverage.sh
+
+      - name: tracey report (optional)
+        continue-on-error: true
+        run: ./scripts/tracey_report.sh
+
+      - name: mutual exclusion fails compile
+        run: ./scripts/verify_provider_exclusive.sh
+
+  main-strict:
+    name: main strict (tracey + quality gate)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy, llvm-tools-preview
+
+      - uses: taiki-e/install-action@nextest
+      - uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: PR-equivalent checks
+        run: ./scripts/ci_pr_fast.sh
+
+      - name: coverage for quality gate
+        run: ./scripts/coverage.sh
+
+      - name: tracey + quality gate (strict)
+        run: ./scripts/quality_gate.sh
+
+  main-nightly:
+    name: main nightly (mutants + fuzz, optional)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup toolchain install nightly
+
+      - uses: taiki-e/install-action@cargo-fuzz
+
+      - name: mutants (optional)
+        continue-on-error: true
+        run: ./scripts/run_mutants.sh
+
+      - name: fuzz csv_parse (optional, 300s)
+        continue-on-error: true
+        run: ./scripts/fuzz_csv.sh
+
+  schwab-build:
+    name: clippy + test (schwab stub)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: ./scripts/clippy_schwab.sh
+      - uses: taiki-e/install-action@nextest
+      - run: ./scripts/nextest_schwab.sh
